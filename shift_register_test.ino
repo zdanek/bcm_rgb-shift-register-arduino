@@ -25,7 +25,7 @@ byte ledValues[OUTPUT_BITS];
 #define DEBUG_BYTES(BYTES, LENGTH)
 #endif
 
-#define DELAY(ms) delay(ms);
+#define DELAY(ms) //delay(10);
 
 void setup() {
     
@@ -52,9 +52,13 @@ void setup() {
 
 void loop() {
 
-        ledValues[0] = (byte) 30;
-        ledValues[1] = (byte) 21;
-        ledValues[2] = (byte) 0;
+    DATA_HIGH;    
+    DELAY(1000);
+    DATA_LOW;
+    
+        ledValues[0] = (byte) 200;
+        ledValues[1] = (byte) 150;
+        ledValues[2] = (byte) 250;
         ledValues[3] = (byte) 100;
         ledValues[4] = (byte) 128;
         ledValues[5] = (byte) 170;
@@ -64,18 +68,25 @@ void loop() {
         while (true) {
 
             for (int i = 0; i < 255; i++) {
-                for (int j = 0; j < OUTPUT_BITS; j++) {
-                    if (ledValues[j] > i) 
+                for (int j = OUTPUT_BITS -1; j >= 0; j--) {
+                    if (ledValues[j] > i) {
                         DATA_HIGH;
-                    else
+                    }
+                    else {
                         DATA_LOW;
-                    
+                    }
+                    DELAY(500);
                     CLOCK_HIGH;
+                    DELAY(500);
                     CLOCK_LOW;
+
                 }
 
                 LATCH_HIGH;
+                DELAY(1000)
                 LATCH_LOW;
+                DELAY(1000);
+                
             }
         }
 
