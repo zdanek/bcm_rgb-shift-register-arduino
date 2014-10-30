@@ -5,11 +5,13 @@ int const latchPin = 5;    //PD5
 int const dataPin = 6;     //PD6
 int const clearPin = 7;    //PD7
 
-int const OUTPUT_BITS = 30;
-int const FALSE_BIT = 0;
-int const TRUE_BIT = 1;
+//int const OUTPUT_BITS = 30;
+byte const FALSE_BIT = 0;
+byte const TRUE_BIT = 1;
 
-byte ledValues[OUTPUT_BITS];
+byte const MAX_SUPPORTED_BITS = 60;
+
+byte ledValues[MAX_SUPPORTED_BITS];
 
 #define PRODUCTION
 
@@ -26,6 +28,18 @@ byte ledValues[OUTPUT_BITS];
 #endif
 
 #define DELAY(ms) //delay(10);
+//receiving
+const byte WAITING = 0;
+const byte RECEIVING = 1; 
+
+byte state = WAITING;
+byte dataPtr = 0;
+
+
+byte outputBits=90;
+
+boolean received = false;  // whether the string is complete
+
 
 void setup() {
     
@@ -34,11 +48,26 @@ void setup() {
     PORTD &= B11001111;    //latchPin, clockPin LOW
     PORTD |= B10000000;    //clearPin HIGH
     
+      Serial.begin(9600);
     #ifndef PRODUCTION
+    
     Serial.begin(9600);
     #endif  
 
     DEBUG("Hello!");
+    
+
+     
+     
+        ledValues[0] = (byte) 50;
+        ledValues[1] = (byte) 250;
+        ledValues[2] = (byte) 50;
+        ledValues[3] = (byte) 100;
+        ledValues[4] = (byte) 128;
+        ledValues[5] = (byte) 170;
+        ledValues[6] = (byte) 200;
+        ledValues[7] = (byte) 255;
+
 }
 
 #define LATCH_HIGH PORTD |= B00100000
@@ -52,23 +81,8 @@ void setup() {
 
 void loop() {
 
-    DATA_HIGH;    
-    DELAY(1000);
-    DATA_LOW;
-    
-        ledValues[0] = (byte) 200;
-        ledValues[1] = (byte) 150;
-        ledValues[2] = (byte) 250;
-        ledValues[3] = (byte) 100;
-        ledValues[4] = (byte) 128;
-        ledValues[5] = (byte) 170;
-        ledValues[6] = (byte) 200;
-        ledValues[7] = (byte) 255;
-
-        while (true) {
-
             for (int i = 0; i < 255; i++) {
-                for (int j = OUTPUT_BITS -1; j >= 0; j--) {
+                for (int j = outputBits -1; j >= 0; j--) {
                     if (ledValues[j] > i) {
                         DATA_HIGH;
                     }
@@ -88,11 +102,32 @@ void loop() {
                 DELAY(1000);
                 
             }
-        }
-
 }
 
-//LOOP
-//DataIn clock - wsuwa dane
-//DataStore - kopiuje
+void serialEvent() {
+  while (Serial.available()) {
+    // get the new byte:
+    char inChar = (char)Serial.read();
+    if (state == WAITING) {
+        if (inChar != '[') {
+            continue;
+        } else {
+            state = RECEIVING;
+            continue;
+        }
+    } else {        //receiving
+         if (inChar == ']' || dataPtr == MAX_SUPPORTED_BITS) {
+             state = WAITING;
+             received = true;
+             outputBits = dataPtr;
+             dataPtr = 0;
+             continue;
+         }
+         ledValues[dataPtr] = inChar;
+         dataPtr++;
+     }
+        
+  }
+}
+
 
