@@ -1,7 +1,9 @@
-int const dataPin = 6;        //Define which pins will be used for the Shift Register control
-int const latchPin = 5;
-int const clockPin = 4;
-int const clearPin = 7;
+#include <mega16.h>
+
+int const clockPin = 4;    //PD4
+int const latchPin = 5;    //PD5
+int const dataPin = 6;     //PD6
+int const clearPin = 7;    //PD7
 
 int const OUTPUT_BITS = 30;
 int const FALSE_BIT = 0;
@@ -26,14 +28,11 @@ byte ledValues[OUTPUT_BITS];
 #define DELAY(ms) delay(ms);
 
 void setup() {
-    pinMode(dataPin, OUTPUT);       //Configure each IO Pin
-    pinMode(latchPin, OUTPUT);
-    pinMode(clockPin, OUTPUT);
-    pinMode(clearPin, OUTPUT);
+    
+    DDRD |= B11110000;        //Outputs on pins 4,5,6,7
 
-    digitalWrite(latchPin, LOW);
-    digitalWrite(clockPin, LOW);
-    digitalWrite(clearPin, HIGH);
+    PORTD &= B11001111;    //latchPin, clockPin LOW
+    PORTD |= B10000000;    //clearPin HIGH
     
     #ifndef PRODUCTION
     Serial.begin(9600);
@@ -41,6 +40,15 @@ void setup() {
 
     DEBUG("Hello!");
 }
+
+#define LATCH_HIGH PORTD |= B00100000
+#define LATCH_LOW PORTD &= B11011111
+
+#define DATA_HIGH PORTD |= B01000000
+#define DATA_LOW PORTD &= B10111111
+
+#define CLOCK_HIGH PORTD |= B00010000
+#define CLOCK_LOW PORTD &= B11101111
 
 void loop() {
 
@@ -53,61 +61,27 @@ void loop() {
         ledValues[6] = (byte) 200;
         ledValues[7] = (byte) 255;
 
-        boolean outputWord[OUTPUT_BITS];
-
         while (true) {
 
             for (int i = 0; i < 255; i++) {
                 for (int j = 0; j < OUTPUT_BITS; j++) {
-                    outputWord[j] = ledValues[j] > i; //? TRUE_BIT : FALSE_BIT;
+                    if (ledValues[j] > i) 
+                        DATA_HIGH;
+                    else
+                        DATA_LOW;
+                    
+                    CLOCK_HIGH;
+                    CLOCK_LOW;
                 }
 
-                pushToRegister(outputWord);
+                LATCH_HIGH;
+                LATCH_LOW;
             }
         }
 
 }
 
-void pushToRegister(byte data[]) {
-    DEBUG("Pushing to reg");
-    DEBUG_BYTES(data, OUTPUT_BITS);
-    dataClear();
-    
-    for (int i = 0; i < OUTPUT_BITS ; i++) {
-        digitalWrite(dataPin, data[OUTPUT_BITS - i -1]);// == FALSE_BIT ? LOW : HIGH);
-        tickClock();
-    }
-    
-    tickLatch();
-    
-//    DELAY(2000);
-}
-
-void dataClear() {
-    digitalWrite(clearPin, LOW);
-//    DELAY(20);
-    digitalWrite(clearPin, HIGH);
-}
-
-void tickClock() {
-    digitalWrite(clockPin, HIGH);
-//    DELAY(20);
-    digitalWrite(clockPin, LOW);
-}
-
-void tickLatch() {
-    digitalWrite(latchPin, HIGH);
-//    DELAY(20);
-    digitalWrite(latchPin, LOW);
-}
-
-
-//OE pulled high
-
-//OE pulled low
-
 //LOOP
-//Data Clear
 //DataIn clock - wsuwa dane
 //DataStore - kopiuje
 
