@@ -1,3 +1,4 @@
+//ver 1.1
 #include <mega16.h>
 
 int const clockPin = 4;    //PD4
@@ -30,13 +31,14 @@ byte ledValues[MAX_SUPPORTED_BITS];
 #define DELAY(ms) //delay(10);
 //receiving
 const byte WAITING = 0;
-const byte RECEIVING = 1; 
+const byte PREAMBLE = 1; 
+const byte RECEIVING = 2; 
 
 byte state = WAITING;
 byte dataPtr = 0;
 
 
-byte outputBits=90;
+byte outputBits=30;
 
 boolean received = false;  // whether the string is complete
 
@@ -48,19 +50,14 @@ void setup() {
     PORTD &= B11001111;    //latchPin, clockPin LOW
     PORTD |= B10000000;    //clearPin HIGH
     
-      Serial.begin(9600);
-    #ifndef PRODUCTION
-    
     Serial.begin(9600);
-    #endif  
-
     DEBUG("Hello!");
     
 
      
      
-        ledValues[0] = (byte) 50;
-        ledValues[1] = (byte) 250;
+        ledValues[0] = (byte) 100;
+        ledValues[1] = (byte) 0;
         ledValues[2] = (byte) 50;
         ledValues[3] = (byte) 100;
         ledValues[4] = (byte) 128;
@@ -112,18 +109,22 @@ void serialEvent() {
         if (inChar != '[') {
             continue;
         } else {
-            state = RECEIVING;
+            state = PREAMBLE;
             continue;
         }
+    } else if (state == PREAMBLE) {
+        outputBits = (byte)inChar;
+        state = RECEIVING;
+        continue;
     } else {        //receiving
-         if (inChar == ']' || dataPtr == MAX_SUPPORTED_BITS) {
+         ledValues[dataPtr] = inChar;
+         if (dataPtr == outputBits || dataPtr == MAX_SUPPORTED_BITS) {
              state = WAITING;
              received = true;
-             outputBits = dataPtr;
              dataPtr = 0;
              continue;
          }
-         ledValues[dataPtr] = inChar;
+
          dataPtr++;
      }
         
