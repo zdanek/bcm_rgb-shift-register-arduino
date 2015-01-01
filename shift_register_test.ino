@@ -1,10 +1,12 @@
-//ver 1.1
-#include <mega16.h>
+//ver 1.2
+//#include <mega16.h>
 
-int const clockPin = 4;    //PD4
-int const latchPin = 5;    //PD5
-int const dataPin = 6;     //PD6
-int const clearPin = 7;    //PD7
+//ATTiny4313
+
+int const clockPin = 4;    //PD2 - case pin 6
+int const latchPin = 5;    //PD3 - pin 7
+int const dataPin = 7;     //PD5 - pin 9
+int const outputEnablePin = 6;    //PD4 - pin 8
 
 //int const OUTPUT_BITS = 30;
 byte const FALSE_BIT = 0;
@@ -28,7 +30,7 @@ byte ledValues[MAX_SUPPORTED_BITS];
 #define DEBUG_BYTES(BYTES, LENGTH)
 #endif
 
-#define DELAY(ms) //delay(10);
+#define DELAY(ms) delay(ms);
 //receiving
 const byte WAITING = 0;
 const byte PREAMBLE = 1; 
@@ -38,7 +40,7 @@ byte state = WAITING;
 byte dataPtr = 0;
 
 
-byte outputBits=30;
+byte outputBits=1;
 
 boolean received = false;  // whether the string is complete
 
@@ -58,7 +60,7 @@ void setup() {
      
         ledValues[0] = (byte) 100;
         ledValues[1] = (byte) 0;
-        ledValues[2] = (byte) 50;
+        ledValues[2] = (byte) 0;
         ledValues[3] = (byte) 100;
         ledValues[4] = (byte) 128;
         ledValues[5] = (byte) 170;
