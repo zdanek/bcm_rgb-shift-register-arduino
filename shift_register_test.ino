@@ -1,15 +1,15 @@
-int const dataPin = 6;        //Define which pins will be used for the Shift Register control
+int const dataPin = 7;        //Define which pins will be used for the Shift Register control
 int const latchPin = 5;
 int const clockPin = 4;
-int const clearPin = 7;
+int const oePin = 6;
 
-int const OUTPUT_BITS = 30;
+int const OUTPUT_BITS = 6;
 int const FALSE_BIT = 0;
 int const TRUE_BIT = 1;
 
 byte ledValues[OUTPUT_BITS];
 
-#define PRODUCTION
+//#define PRODUCTION
 
 #ifndef PRODUCTION
 #define DEBUG(MSG) Serial.println(MSG)
@@ -23,17 +23,19 @@ byte ledValues[OUTPUT_BITS];
 #define DEBUG_BYTES(BYTES, LENGTH)
 #endif
 
-#define DELAY(ms) delay(ms);
+#define DELAY(ms) //delay(ms);
 
 void setup() {
     pinMode(dataPin, OUTPUT);       //Configure each IO Pin
     pinMode(latchPin, OUTPUT);
     pinMode(clockPin, OUTPUT);
-    pinMode(clearPin, OUTPUT);
+    pinMode(oePin, OUTPUT);
 
     digitalWrite(latchPin, LOW);
     digitalWrite(clockPin, LOW);
-    digitalWrite(clearPin, HIGH);
+    digitalWrite(oePin, LOW);
+    //uncomment to disable output
+//        digitalWrite(oePin, HIGH);
     
     #ifndef PRODUCTION
     Serial.begin(9600);
@@ -43,15 +45,15 @@ void setup() {
 }
 
 void loop() {
-
-        ledValues[0] = (byte) 30;
-        ledValues[1] = (byte) 21;
+//BRG
+        ledValues[0] = (byte) 1;
+        ledValues[1] = (byte) 0;
         ledValues[2] = (byte) 0;
-        ledValues[3] = (byte) 100;
-        ledValues[4] = (byte) 128;
-        ledValues[5] = (byte) 170;
-        ledValues[6] = (byte) 200;
-        ledValues[7] = (byte) 255;
+        ledValues[3] = (byte) 0;
+        ledValues[4] = (byte) 1;
+        ledValues[5] = (byte) 0;
+        ledValues[6] = (byte) 0;
+        ledValues[7] = (byte) 0;
 
         boolean outputWord[OUTPUT_BITS];
 
@@ -71,7 +73,7 @@ void loop() {
 void pushToRegister(byte data[]) {
     DEBUG("Pushing to reg");
     DEBUG_BYTES(data, OUTPUT_BITS);
-    dataClear();
+//    dataClear();
     
     for (int i = 0; i < OUTPUT_BITS ; i++) {
         digitalWrite(dataPin, data[OUTPUT_BITS - i -1]);// == FALSE_BIT ? LOW : HIGH);
@@ -80,22 +82,24 @@ void pushToRegister(byte data[]) {
     
     tickLatch();
     
-//    DELAY(2000);
+    DELAY(2000);
 }
 
 void dataClear() {
-    digitalWrite(clearPin, LOW);
+    digitalWrite(oePin, LOW);
 //    DELAY(20);
-    digitalWrite(clearPin, HIGH);
+    digitalWrite(oePin, HIGH);
 }
 
 void tickClock() {
+    DEBUG("Clock");
     digitalWrite(clockPin, HIGH);
 //    DELAY(20);
     digitalWrite(clockPin, LOW);
 }
 
 void tickLatch() {
+        DEBUG("Latch");
     digitalWrite(latchPin, HIGH);
 //    DELAY(20);
     digitalWrite(latchPin, LOW);
