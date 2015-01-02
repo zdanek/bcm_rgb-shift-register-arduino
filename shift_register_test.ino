@@ -1,7 +1,7 @@
-//ver 1.2
+//ver 1.2.1 UNO
 //#include <mega16.h>
 
-//ATTiny4313
+//UNO
 
 int const clockPin = 4;    //PD2 - case pin 6
 int const latchPin = 5;    //PD3 - pin 7
