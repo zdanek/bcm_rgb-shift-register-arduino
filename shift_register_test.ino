@@ -13,24 +13,28 @@ byte const FALSE_BIT = 0;
 byte const TRUE_BIT = 1;
 
 byte const MAX_SUPPORTED_BITS = 60;
+int const VALUE_LEVELS = 255;
 
 byte ledValues[MAX_SUPPORTED_BITS];
 
-//#define PRODUCTION
+#define PRODUCTION
 
 #ifndef PRODUCTION
 #define DEBUG(MSG) Serial.println(MSG)
 #define DEBUGN(MSG) Serial.print(MSG)
 #define DEBUGHEX(LONG) Serial.println(LONG, HEX)
-#define DEBUG_BYTES(BYTES, LENGTH) { for (int dc = 0; dc < LENGTH; dc++) DEBUGHEX(BYTES[dc]); }
+#define DEBUGHEXN(LONG) Serial.print(LONG, HEX)
+#define DEBUG_BYTES(BYTES, LENGTH) { for (int dc = 0; dc < LENGTH; dc++) DEBUGHEXN(BYTES[dc]); DEBUG(""); }
+#define DELAY(ms) delay(ms);
 #else
 #define DEBUGHEX(LONG) 
+#define DEBUGHEXN(LONG)
 #define DEBUG(MSG) 
 #define DEBUGN(MSG)
 #define DEBUG_BYTES(BYTES, LENGTH)
+#define DELAY(ms)
 #endif
 
-#define DELAY(ms) delay(ms);
 //receiving
 const byte WAITING = 0;
 const byte PREAMBLE = 1; 
@@ -40,7 +44,7 @@ byte state = WAITING;
 byte dataPtr = 0;
 
 
-byte outputBits = 1;
+byte outputBits = 60;
 
 boolean received = false;  // whether the string is complete
 
@@ -59,14 +63,14 @@ void setup() {
 
      //BRG
      
-        ledValues[0] = (byte) 1;
-        ledValues[1] = (byte) 0;
-        ledValues[2] = (byte) 0;
-        ledValues[3] = (byte) 0;
+        ledValues[0] = (byte) 0;
+        ledValues[1] = (byte) 1;
+        ledValues[2] = (byte) 2;
+        ledValues[3] = (byte) 2;
         ledValues[4] = (byte) 0;
         ledValues[5] = (byte) 0;
         ledValues[6] = (byte) 1;
-        ledValues[7] = (byte) 1;
+        ledValues[7] = (byte) 0;
 
 }
 
@@ -88,7 +92,7 @@ void setup() {
 
 void loop() {
 
-            for (int i = 0; i < 255; i++) {
+            for (int i = 0; i < VALUE_LEVELS; i++) {
                 for (int j = outputBits -1; j >= 0; j--) {
                     if (ledValues[j] > i) {
                         DATA_HIGH;
