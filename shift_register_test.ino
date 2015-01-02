@@ -16,7 +16,7 @@ byte const MAX_SUPPORTED_BITS = 60;
 
 byte ledValues[MAX_SUPPORTED_BITS];
 
-#define PRODUCTION
+//#define PRODUCTION
 
 #ifndef PRODUCTION
 #define DEBUG(MSG) Serial.println(MSG)
@@ -40,7 +40,7 @@ byte state = WAITING;
 byte dataPtr = 0;
 
 
-byte outputBits=1;
+byte outputBits = 1;
 
 boolean received = false;  // whether the string is complete
 
@@ -49,34 +49,42 @@ void setup() {
     
     DDRD |= B11110000;        //Outputs on pins 4,5,6,7
 
-    PORTD &= B11001111;    //latchPin, clockPin LOW
-    PORTD |= B10000000;    //clearPin HIGH
+    PORTD &= B00001111;    //OE, latchPin, clockPin LOW
+//    PORTD |= B10000000;    //outputEnable LOW
+//    PORTD |= B10000000;    //outputEnable LOW
     
     Serial.begin(9600);
     DEBUG("Hello!");
     
 
+     //BRG
      
-     
-        ledValues[0] = (byte) 100;
+        ledValues[0] = (byte) 1;
         ledValues[1] = (byte) 0;
         ledValues[2] = (byte) 0;
-        ledValues[3] = (byte) 100;
-        ledValues[4] = (byte) 128;
-        ledValues[5] = (byte) 170;
-        ledValues[6] = (byte) 200;
-        ledValues[7] = (byte) 255;
+        ledValues[3] = (byte) 0;
+        ledValues[4] = (byte) 0;
+        ledValues[5] = (byte) 0;
+        ledValues[6] = (byte) 1;
+        ledValues[7] = (byte) 1;
 
 }
 
+//LATCH 5
 #define LATCH_HIGH PORTD |= B00100000
 #define LATCH_LOW PORTD &= B11011111
 
-#define DATA_HIGH PORTD |= B01000000
-#define DATA_LOW PORTD &= B10111111
+//DATA 7
+#define DATA_HIGH PORTD |= B10000000
+#define DATA_LOW PORTD &= B01111111
 
+//CLOCK 4
 #define CLOCK_HIGH PORTD |= B00010000
 #define CLOCK_LOW PORTD &= B11101111
+
+//OE 6
+#define OUTPUT_EN_HIGH PORTD |= B01000000 
+#define OUTPUT_EN_LOW PORTD &= B10111111
 
 void loop() {
 
@@ -84,20 +92,26 @@ void loop() {
                 for (int j = outputBits -1; j >= 0; j--) {
                     if (ledValues[j] > i) {
                         DATA_HIGH;
+                        DEBUG("D[1]");
                     }
                     else {
                         DATA_LOW;
+                        DEBUG("D[0]");
                     }
                     DELAY(500);
                     CLOCK_HIGH;
+                DEBUG("   C[1]");                    
                     DELAY(500);
                     CLOCK_LOW;
+                DEBUG("   C[0]");
 
                 }
 
                 LATCH_HIGH;
+                DEBUG("       L[1]");
                 DELAY(1000)
                 LATCH_LOW;
+                DEBUG("       L[0]");
                 DELAY(1000);
                 
             }
