@@ -3,6 +3,8 @@
 
 //UNO
 #include "uno_consts.h"
+//ATTiny4313
+//#include "attiny4313_consts.h"
 
 int const clockPin = 4;    //PD2 - case pin 6
 int const latchPin = 5;    //PD3 - pin 7
