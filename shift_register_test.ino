@@ -2,6 +2,7 @@
 //#include <mega16.h>
 
 //UNO
+#include "uno_consts.h"
 
 int const clockPin = 4;    //PD2 - case pin 6
 int const latchPin = 5;    //PD3 - pin 7
@@ -43,17 +44,21 @@ const byte RECEIVING = 2;
 byte state = WAITING;
 byte dataPtr = 0;
 
-
 byte outputBits = 60;
 
 boolean received = false;  // whether the string is complete
 
 
 void setup() {
-    
-    DDRD |= B11110000;        //Outputs on pins 4,5,6,7
 
-    PORTD &= B00001111;    //OE, latchPin, clockPin LOW
+        
+    CONFIG_OUTPUTS;
+    
+    LATCH_LOW;
+    CLOCK_LOW;
+    OUTPUT_EN_LOW;
+    
+//    PORTD &= B00001111;    //OE, latchPin, clockPin LOW
 //    PORTD |= B10000000;    //outputEnable LOW
 //    PORTD |= B10000000;    //outputEnable LOW
     
@@ -95,21 +100,6 @@ void setup() {
 
 
 
-//LATCH 5
-#define LATCH_HIGH PORTD |= B00100000
-#define LATCH_LOW PORTD &= B11011111
-
-//DATA 7
-#define DATA_HIGH PORTD |= B10000000
-#define DATA_LOW PORTD &= B01111111
-
-//CLOCK 4
-#define CLOCK_HIGH PORTD |= B00010000
-#define CLOCK_LOW PORTD &= B11101111
-
-//OE 6
-#define OUTPUT_EN_HIGH PORTD |= B01000000 
-#define OUTPUT_EN_LOW PORTD &= B10111111
 
 void loop() {
 
