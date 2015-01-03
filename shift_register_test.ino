@@ -6,7 +6,7 @@
 int const clockPin = 4;    //PD2 - case pin 6
 int const latchPin = 5;    //PD3 - pin 7
 int const dataPin = 7;     //PD5 - pin 9
-int const outputEnablePin = 6;    //PD4 - pin 8
+int const outputEnablePin = 16;    //PD4 - pin 8
 
 //int const OUTPUT_BITS = 30;
 byte const FALSE_BIT = 0;
@@ -67,12 +67,33 @@ void setup() {
         ledValues[1] = (byte) 1;
         ledValues[2] = (byte) 2;
         ledValues[3] = (byte) 2;
-        ledValues[4] = (byte) 0;
-        ledValues[5] = (byte) 0;
+        ledValues[4] = (byte) 2;
+        ledValues[5] = (byte) 2;
         ledValues[6] = (byte) 1;
         ledValues[7] = (byte) 0;
+               
+        ledValues[8] = (byte) 0;
+        ledValues[9] = (byte) 1;
+        ledValues[10] = (byte) 1;
+        ledValues[11] = (byte) 1;
+        ledValues[12] = (byte) 1;
+        ledValues[13] = (byte) 1;
+        ledValues[14] = (byte) 1;
+        ledValues[15] = (byte) 1;
+        ledValues[16] = (byte) 0;
+
+        for (int j=0; j < 5; j++) {
+        for (int x=1;x < 7; x+=3) {
+            ledValues[j*8 + x] = (byte) 5;
+            ledValues[j*8 +x+1] = (byte) 5;
+            ledValues[j*8 +x+2] = (byte) 5;
+        }
+        }
+
 
 }
+
+
 
 //LATCH 5
 #define LATCH_HIGH PORTD |= B00100000
