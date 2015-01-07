@@ -46,7 +46,7 @@ const byte RECEIVING = 2;
 byte state = WAITING;
 byte dataPtr = 0;
 
-byte outputBits = 32;
+byte outputBits = 80;
 
 boolean received = false;  // whether the string is complete
 
@@ -112,8 +112,9 @@ void setup() {
 
 void loop() {
 
-            for (int i = 0; i < VALUE_LEVELS; i++) {
-                for (int j = outputBits -1; j >= 0; j--) {
+
+            for (byte i = 0; i < VALUE_LEVELS; i++) {
+                for (short j = outputBits -1; j >= 0; j--) {
                     if (ledValues[j] > i) {
                         DATA_HIGH;
                         DEBUG("D[1]");
@@ -139,8 +140,9 @@ void loop() {
                 DELAY(50);
                 
             }
+
 }
-/*
+
 void serialEvent() {
   while (Serial.available()) {
     // get the new byte:
@@ -170,5 +172,5 @@ void serialEvent() {
         
   }
 }
-*/
+
 

@@ -8,9 +8,13 @@
 #define DATA_HIGH PORTB |= B00000010
 #define DATA_LOW  PORTB &= B11111101
 
-//CLOCK PD6
-#define CLOCK_HIGH PORTD |= B01000000
-#define CLOCK_LOW  PORTD &= B10111111
+//DATA PB1 with control lines low
+//#define DATA_HIGH_CTRL_LOW PORTB |= B00000010
+//#define DATA_LOW_CTRL_LOW  PORTB &= B11111101
+
+//CLOCK PD6 - setting directly. not masking because it's on different port and masking i very slow
+#define CLOCK_HIGH PORTD = B01000000
+#define CLOCK_LOW  PORTD = B10111111
 
 //OE PB5
 #define OUTPUT_EN_HIGH PORTB |= B00100000 
