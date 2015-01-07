@@ -2,10 +2,10 @@
 //tradional shift regs with Ardu serial out - Very slow, but good for dev
 
 
-int const dataPin = 7;        //Define which pins will be used for the Shift Register control
-int const latchPin = 5;
-int const clockPin = 4;
-int const oePin = 6;
+int const dataPin = 10;        //uno 7, tiny 10
+int const latchPin = 16;        //uno 5, tiny 16
+int const clockPin = 8;        //uno 4, tiny 8
+int const oePin = 14;            //uno 6, tiny 14
 
 int const OUTPUT_BITS = 8;
 int const FALSE_BIT = 0;
@@ -59,7 +59,7 @@ void setup() {
         ledValues[1] = (byte) 1;
         ledValues[2] = (byte) 1;
         ledValues[3] = (byte) 1;
-        ledValues[4] = (byte) 1;
+        ledValues[4] = (byte) 0;
         ledValues[5] = (byte) 0;
         ledValues[6] = (byte) 0;
         ledValues[7] = (byte) 0;
