@@ -25,11 +25,11 @@ byte const FALSE_BIT = 0;
 byte const TRUE_BIT = 1;
 
 byte const MAX_SUPPORTED_BITS = 30;
-int const VALUE_LEVELS = 255;
+int const VALUE_LEVELS = 3;
 
 byte ledValues[MAX_SUPPORTED_BITS];
 
-#define DEMO
+#define DEMO0
 #define PRODUCTION
 
 #ifndef PRODUCTION
@@ -38,6 +38,7 @@ byte ledValues[MAX_SUPPORTED_BITS];
 #define DEBUGHEX(LONG) Serial.println(LONG, HEX)
 #define DEBUGHEXN(LONG) Serial.print(LONG, HEX)
 #define DEBUG_BYTES(BYTES, LENGTH) { for (int dc = 0; dc < LENGTH; dc++) DEBUGHEXN(BYTES[dc]); DEBUG(""); }
+#define DEBUGL(LONG) Serial.print(LONG)
 #define DELAY(ms) delay(ms); 
 #else
 #define DEBUGHEX(LONG) 
@@ -45,6 +46,7 @@ byte ledValues[MAX_SUPPORTED_BITS];
 #define DEBUG(MSG) 
 #define DEBUGN(MSG)
 #define DEBUG_BYTES(BYTES, LENGTH)
+#define DEBUGL(LONG)
 #define DELAY(ms)
 #endif
 
@@ -210,7 +212,7 @@ void serialEvent() {
         if (inChar != '[') {
             continue;
         } else {
-          DEBUG("RECEIVING!");
+          DEBUG("PREAMBLE!");
             state = PREAMBLE;
 //allBlue();
             continue;
@@ -218,6 +220,9 @@ void serialEvent() {
     } else if (state == PREAMBLE) {
         outputBits = (byte)inChar;
         state = RECEIVING;
+        DEBUG("RECEIVING, expected length: ");
+        DEBUGL(outputBits);
+
 //allGreen();
         continue;
     } else {        //receiving
@@ -227,6 +232,7 @@ void serialEvent() {
              received = true;
              dataPtr = 0;
 //allRed();
+            DEBUG("DONE!->WAITING");
             DEBUG_BYTES(ledValues, outputBits);
             continue;
          }
