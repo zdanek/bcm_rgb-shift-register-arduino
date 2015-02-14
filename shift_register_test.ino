@@ -1,10 +1,19 @@
 //ver 1.2.1 UNO
 //#include <mega16.h>
 
+//PINS on PCB
+//from top
+//vcc
+//latch
+//oe
+//data_in
+//clk
+//gnd
+
 //UNO
-//#include "uno_consts.h"
+#include "uno_consts.h"
 //ATTiny4313
-#include "attiny4313_consts.h"
+//#include "attiny4313_consts.h"
 
 //int const clockPin = 4;    //PD2 - case pin 6
 //int const latchPin = 5;    //PD3 - pin 7
@@ -20,6 +29,7 @@ int const VALUE_LEVELS = 255;
 
 byte ledValues[MAX_SUPPORTED_BITS];
 
+#define DEMO
 #define PRODUCTION
 
 #ifndef PRODUCTION
@@ -28,7 +38,7 @@ byte ledValues[MAX_SUPPORTED_BITS];
 #define DEBUGHEX(LONG) Serial.println(LONG, HEX)
 #define DEBUGHEXN(LONG) Serial.print(LONG, HEX)
 #define DEBUG_BYTES(BYTES, LENGTH) { for (int dc = 0; dc < LENGTH; dc++) DEBUGHEXN(BYTES[dc]); DEBUG(""); }
-#define DELAY(ms) delay(ms);
+#define DELAY(ms) delay(ms); 
 #else
 #define DEBUGHEX(LONG) 
 #define DEBUGHEXN(LONG)
@@ -46,10 +56,19 @@ const byte RECEIVING = 2;
 byte state = WAITING;
 byte dataPtr = 0;
 
-byte outputBits = 80;
+byte outputBits = 8;
 
 boolean received = false;  // whether the string is complete
 
+byte rInc = 4;
+byte gInc = 15;
+byte bInc = 9;
+
+byte r = 0;
+byte g = 60;
+byte b = 128;
+
+unsigned long demoCnt =4;
 
 void setup() {
 
@@ -68,15 +87,15 @@ void setup() {
     DEBUG("Hello!");
     
 
-     //BRG
-     
+     //RGB
+//first and last bit in byte is unused     
         ledValues[0] = (byte) 0;
-        ledValues[1] = (byte) 2;
-        ledValues[2] = (byte) 2;
-        ledValues[3] = (byte) 2;
-        ledValues[4] = (byte) 2;
-        ledValues[5] = (byte) 2;
-        ledValues[6] = (byte) 2;
+        ledValues[1] = (byte) 2; //R
+        ledValues[2] = (byte) 0; //G
+        ledValues[3] = (byte) 0; //B
+        ledValues[4] = (byte) 0; //R
+        ledValues[5] = (byte) 2; //G
+        ledValues[6] = (byte) 0; //B
         ledValues[7] = (byte) 0;
                
         ledValues[8] = (byte) 0;
@@ -110,6 +129,42 @@ void setup() {
 }
 
 
+void allRed() {
+  outputBits = 8;
+        ledValues[0] = (byte) 0;
+        ledValues[1] = (byte) 2; //R
+        ledValues[2] = (byte) 0; //G
+        ledValues[3] = (byte) 0; //B
+        ledValues[4] = (byte) 2; //R
+        ledValues[5] = (byte) 0; //G
+        ledValues[6] = (byte) 0; //B
+        ledValues[7] = (byte) 0;
+}
+
+void allBlue() {
+  outputBits = 8;
+        ledValues[0] = (byte) 0;
+        ledValues[1] = (byte) 0; //R
+        ledValues[2] = (byte) 0; //G
+        ledValues[3] = (byte) 2; //B
+        ledValues[4] = (byte) 0; //R
+        ledValues[5] = (byte) 0; //G
+        ledValues[6] = (byte) 2; //B
+        ledValues[7] = (byte) 0;
+}
+
+void allGreen() {
+  outputBits = 8;
+        ledValues[0] = (byte) 0;
+        ledValues[1] = (byte) 0; //R
+        ledValues[2] = (byte) 2; //G
+        ledValues[3] = (byte) 0; //B
+        ledValues[4] = (byte) 0; //R
+        ledValues[5] = (byte) 2; //G
+        ledValues[6] = (byte) 0; //B
+        ledValues[7] = (byte) 0;
+}
+
 void loop() {
 
 
@@ -141,6 +196,10 @@ void loop() {
                 
             }
 
+    #ifdef DEMO
+    tickDemo();
+    #endif
+    
 }
 
 void serialEvent() {
@@ -151,12 +210,15 @@ void serialEvent() {
         if (inChar != '[') {
             continue;
         } else {
+          DEBUG("RECEIVING!");
             state = PREAMBLE;
+//allBlue();
             continue;
         }
     } else if (state == PREAMBLE) {
         outputBits = (byte)inChar;
         state = RECEIVING;
+//allGreen();
         continue;
     } else {        //receiving
          ledValues[dataPtr] = inChar;
@@ -164,7 +226,9 @@ void serialEvent() {
              state = WAITING;
              received = true;
              dataPtr = 0;
-             continue;
+//allRed();
+            DEBUG_BYTES(ledValues, outputBits);
+            continue;
          }
 
          dataPtr++;
@@ -173,4 +237,25 @@ void serialEvent() {
   }
 }
 
+
+void tickDemo()
+{
+    demoCnt--;
+    DEBUGHEX(demoCnt);
+    if (demoCnt > 0L) {
+        return;
+    }
+    
+    demoCnt = 80;
+
+        DEBUGHEX(demoCnt);
+    DEBUG("DUUUUUUUUUUPA");
+    r+=rInc;
+    g+=gInc;
+    b+=bInc;
+    
+    ledValues[1] = r;
+    ledValues[2] = g;
+    ledValues[3] = b;
+}
 
