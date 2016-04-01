@@ -1,6 +1,12 @@
 //ver 1.2.1 UNO
 //#include <mega16.h>
 
+//trszeba zrobic
+//1) zeby uC nie sral tak przez rs
+//2) zeby sie ladnie wital przy starcei
+//3) zeby wysylal powod resetu
+//4) 
+
 //PINS on PCB
 //from top
 //vcc
@@ -11,9 +17,9 @@
 //gnd
 
 //UNO
-#include "uno_consts.h"
+//#include "uno_consts.h"
 //ATTiny4313
-//#include "attiny4313_consts.h"
+#include "attiny4313_consts.h"
 
 //int const clockPin = 4;    //PD2 - case pin 6
 //int const latchPin = 5;    //PD3 - pin 7
@@ -25,7 +31,7 @@ byte const FALSE_BIT = 0;
 byte const TRUE_BIT = 1;
 
 byte const MAX_SUPPORTED_BITS = 30;
-int const VALUE_LEVELS = 3;
+int const VALUE_LEVELS = 255;
 
 byte ledValues[MAX_SUPPORTED_BITS];
 
@@ -38,7 +44,7 @@ byte ledValues[MAX_SUPPORTED_BITS];
 #define DEBUGHEX(LONG) Serial.println(LONG, HEX)
 #define DEBUGHEXN(LONG) Serial.print(LONG, HEX)
 #define DEBUG_BYTES(BYTES, LENGTH) { for (int dc = 0; dc < LENGTH; dc++) DEBUGHEXN(BYTES[dc]); DEBUG(""); }
-#define DEBUGL(LONG) Serial.print(LONG)
+#define DEBUGL(LONG) Serial.println(LONG)
 #define DELAY(ms) delay(ms); 
 #else
 #define DEBUGHEX(LONG) 
@@ -46,6 +52,8 @@ byte ledValues[MAX_SUPPORTED_BITS];
 #define DEBUG(MSG) 
 #define DEBUGN(MSG)
 #define DEBUG_BYTES(BYTES, LENGTH)
+//#define DEBUG_BYTES(BYTES, LENGTH) { for (int dc = 0; dc < LENGTH; dc++) DEBUGHEXN(BYTES[dc]); DEBUG(""); }
+
 #define DEBUGL(LONG)
 #define DELAY(ms)
 #endif
@@ -72,6 +80,7 @@ byte b = 128;
 
 unsigned long demoCnt =4;
 
+
 void setup() {
 
         
@@ -86,6 +95,10 @@ void setup() {
 //    PORTD |= B10000000;    //outputEnable LOW
     
     Serial.begin(9600);
+    Serial.println("LEDBar driver. Start");
+    Serial.println("MCUSR");
+    Serial.println(MCUSR, BIN);
+
     DEBUG("Hello!");
     
 
@@ -130,41 +143,22 @@ void setup() {
 
 }
 
-
-void allRed() {
-  outputBits = 8;
-        ledValues[0] = (byte) 0;
-        ledValues[1] = (byte) 2; //R
-        ledValues[2] = (byte) 0; //G
-        ledValues[3] = (byte) 0; //B
-        ledValues[4] = (byte) 2; //R
-        ledValues[5] = (byte) 0; //G
-        ledValues[6] = (byte) 0; //B
-        ledValues[7] = (byte) 0;
-}
-
-void allBlue() {
-  outputBits = 8;
-        ledValues[0] = (byte) 0;
+void stateWait() {
         ledValues[1] = (byte) 0; //R
-        ledValues[2] = (byte) 0; //G
+        ledValues[2] = (byte) 2; //G
         ledValues[3] = (byte) 2; //B
-        ledValues[4] = (byte) 0; //R
-        ledValues[5] = (byte) 0; //G
-        ledValues[6] = (byte) 2; //B
-        ledValues[7] = (byte) 0;
 }
 
-void allGreen() {
-  outputBits = 8;
-        ledValues[0] = (byte) 0;
+void statePre() {
         ledValues[1] = (byte) 0; //R
         ledValues[2] = (byte) 2; //G
         ledValues[3] = (byte) 0; //B
-        ledValues[4] = (byte) 0; //R
-        ledValues[5] = (byte) 2; //G
-        ledValues[6] = (byte) 0; //B
-        ledValues[7] = (byte) 0;
+}
+
+void stateOK() {
+        ledValues[1] = (byte) 0; //R
+        ledValues[2] = (byte) 0; //G
+        ledValues[3] = (byte) 2; //B
 }
 
 void loop() {
@@ -204,7 +198,9 @@ void loop() {
     
 }
 
-void serialEvent() {
+void serialEventRun() {
+  DEBUG("SERIAL EEEEEEEEEEEEEEVENT");
+  
   while (Serial.available()) {
     // get the new byte:
     char inChar = (char)Serial.read();
